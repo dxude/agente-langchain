@@ -1,7 +1,7 @@
 """
 Agente Inteligente com LangChain + Hugging Face
-Disciplina: [Nome da Disciplina]
-Grupo: [Nome dos integrantes]
+Disciplina: [IA APLICADA]
+Grupo: [Eduarda Veloso, Panmela Karen, Saíra Aguiar]
 """
 
 from langchain_huggingface import HuggingFacePipeline

@@ -1,7 +1,7 @@
 # 🤖 Agente Inteligente com LangChain
 
-Projeto desenvolvido para a disciplina de [Nome da Disciplina].  
-**Grupo:** [Nome do integrante 1], [Nome do integrante 2], [Nome do integrante 3]
+Projeto desenvolvido para a disciplina de [IA APLICADA].  
+**Grupo:** [Eduarda Veloso, Panmela Karen, Saíra Aguiar]
 
 ---
 
