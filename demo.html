@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Agente Inteligente 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #fff0f5;
+    --surface: #ffffff;
+    --surface2: #fce8f0;
+    --border: #f5c0d4;
+    --accent: #e05a8a;
+    --accent2: #f2a4c0;
+    --accent3: #c0427a;
+    --text: #3a1a2a;
+    --muted: #b07090;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px 40px;
+    background-image:
+      radial-gradient(circle at 15% 20%, rgba(240,160,190,0.25) 0%, transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(250,180,210,0.2) 0%, transparent 40%);
+  }
+  .petal { position:fixed; pointer-events:none; font-size:20px; animation:fall linear infinite; opacity:0.45; z-index:0; }
+  @keyframes fall { 0%{transform:translateY(-40px) rotate(0deg);opacity:0} 10%{opacity:0.45} 90%{opacity:0.25} 100%{transform:translateY(110vh) rotate(360deg);opacity:0} }
+  header { width:100%; max-width:720px; display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:24px; animation:fadeDown .7s ease both; position:relative; z-index:1; }
+  .logo-wrap { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#f7a8c4,#e05a8a); display:flex; align-items:center; justify-content:center; font-size:32px; box-shadow:0 8px 32px rgba(224,90,138,.3); margin-bottom:4px; }
+  header h1 { font-family:'Playfair Display',serif; font-size:1.9rem; color:var(--accent3); }
+  header p  { font-size:.78rem; color:var(--muted); letter-spacing:.06em; }
+  .chat-window { width:100%; max-width:720px; background:var(--surface); border:1.5px solid var(--border); border-radius:28px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 12px 48px rgba(224,90,138,.12); position:relative; z-index:1; animation:fadeUp .7s ease .1s both; }
+  .chat-topbar { display:flex; align-items:center; gap:10px; padding:16px 22px; border-bottom:1.5px solid var(--border); background:var(--surface2); }
+  .dot { width:10px; height:10px; border-radius:50%; }
+  .dot-r{background:#ff7eb6} .dot-y{background:#ffb3d1} .dot-g{background:#ffcce4}
+  .topbar-title { font-size:.82rem; font-weight:500; color:var(--accent3); margin-left:6px; }
+  .status-pill { margin-left:auto; font-size:.65rem; padding:4px 12px; background:rgba(224,90,138,.1); border:1px solid var(--border); border-radius:999px; color:var(--accent); display:flex; align-items:center; gap:5px; }
+  .status-dot { width:6px; height:6px; border-radius:50%; background:#e05a8a; animation:blink 2s ease infinite; }
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+  .messages { flex:1; min-height:360px; max-height:460px; overflow-y:auto; padding:24px 22px; display:flex; flex-direction:column; gap:18px; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .msg { display:flex; gap:10px; animation:fadeUp .3s ease both; }
+  .msg.user { flex-direction:row-reverse; }
+  .avatar { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; border:1.5px solid var(--border); }
+  .msg.user .avatar { background:linear-gradient(135deg,#fce8f0,#f9c4d8); }
+  .msg.bot  .avatar { background:linear-gradient(135deg,#fff0f6,#fce0ec); }
+  .bubble { max-width:72%; padding:12px 16px; border-radius:18px; font-size:.86rem; line-height:1.65; }
+  .msg.user .bubble { background:linear-gradient(135deg,#fde0ed,#fcc8de); border:1px solid #f0b0cc; border-top-right-radius:6px; color:var(--accent3); }
+  .msg.bot  .bubble { background:#fff5f9; border:1px solid var(--border); border-top-left-radius:6px; color:var(--text); }
+  .timestamp { font-size:.6rem; color:var(--muted); margin-top:4px; padding:0 4px; }
+  .msg.user .timestamp { text-align:right; }
+  .typing-wrap { display:none; padding:0 22px 8px 68px; }
+  .typing-wrap.visible { display:flex; }
+  .typing-bubble { background:#fff5f9; border:1px solid var(--border); border-radius:18px; border-top-left-radius:6px; padding:12px 16px; display:flex; gap:5px; align-items:center; }
+  .typing-bubble span { width:7px; height:7px; border-radius:50%; background:var(--accent2); animation:bounce 1.2s ease infinite; }
+  .typing-bubble span:nth-child(2){animation-delay:.15s} .typing-bubble span:nth-child(3){animation-delay:.3s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-6px);opacity:1}}
+  .input-area { padding:16px 20px; border-top:1.5px solid var(--border); background:var(--surface2); display:flex; gap:10px; align-items:flex-end; }
+  textarea { flex:1; background:var(--surface); border:1.5px solid var(--border); border-radius:16px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:.84rem; padding:12px 16px; resize:none; min-height:46px; max-height:120px; line-height:1.5; outline:none; transition:border-color .2s,box-shadow .2s; }
+  textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(224,90,138,.1); }
+  textarea::placeholder { color:var(--accent2); }
+  .send-btn { width:46px; height:46px; border-radius:50%; background:linear-gradient(135deg,#f07aaa,#e05a8a); border:none; color:#fff; font-size:16px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:transform .15s,box-shadow .15s; box-shadow:0 4px 16px rgba(224,90,138,.35); }
+  .send-btn:hover{transform:scale(1.08);box-shadow:0 6px 20px rgba(224,90,138,.45)} .send-btn:active{transform:scale(.97)} .send-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .suggestions { width:100%; max-width:720px; margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; animation:fadeUp .7s ease .2s both; position:relative; z-index:1; }
+  .suggestion-btn { font-family:'DM Sans',sans-serif; font-size:.75rem; padding:7px 16px; border-radius:999px; border:1.5px solid var(--border); background:var(--surface); color:var(--accent3); cursor:pointer; transition:background .2s,border-color .2s,transform .15s; }
+  .suggestion-btn:hover{background:var(--surface2);border-color:var(--accent2);transform:translateY(-2px)}
+  .stack-info { width:100%; max-width:720px; margin-top:14px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; animation:fadeUp .7s ease .3s both; position:relative; z-index:1; }
+  .tag { font-size:.65rem; padding:5px 12px; border-radius:8px; background:rgba(255,255,255,.7); border:1px solid var(--border); color:var(--muted); letter-spacing:.05em; text-transform:uppercase; }
+  .tag strong { color:var(--accent3); }
+  @keyframes fadeDown{from{opacity:0;transform:translateY(-16px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes fadeUp  {from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<div class="petal" style="left:8%;animation-duration:8s;animation-delay:0s">🌸</div>
+<div class="petal" style="left:22%;animation-duration:10s;animation-delay:2s">🌷</div>
+<div class="petal" style="left:55%;animation-duration:9s;animation-delay:4s">🌸</div>
+<div class="petal" style="left:75%;animation-duration:7s;animation-delay:1s">🌺</div>
+<div class="petal" style="left:90%;animation-duration:11s;animation-delay:6s">🌸</div>
+
+<header>
+  <div class="logo-wrap">🤖</div>
+  <h1>Agente Inteligente</h1>
+  <p>LangChain · Hugging Face · Projeto Acadêmico 🌸</p>
+</header>
+
+<div class="chat-window">
+  <div class="chat-topbar">
+    <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    <span class="topbar-title">agente.py</span>
+    <div class="status-pill"><div class="status-dot"></div>online</div>
+  </div>
+
+  <div class="messages" id="messages">
+    <div class="msg bot">
+      <div class="avatar">🤖</div>
+      <div>
+        <div class="bubble">Olá! 🌸 Sou um agente inteligente criado com <strong>LangChain</strong> e um modelo do <strong>Hugging Face</strong>. Pode me perguntar o que quiser!</div>
+        <div class="timestamp">agora</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="typing-wrap" id="typing">
+    <div class="typing-bubble"><span></span><span></span><span></span></div>
+  </div>
+
+  <div class="input-area">
+    <textarea id="input" placeholder="Digite seu comando..." rows="1"></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+  </div>
+</div>
+
+<div class="suggestions">
+  <button class="suggestion-btn" onclick="ask('O que é inteligência artificial?')">💡 O que é IA?</button>
+  <button class="suggestion-btn" onclick="ask('O que é LangChain?')">🔗 O que é LangChain?</button>
+  <button class="suggestion-btn" onclick="ask('Como você funciona?')">⚙️ Como você funciona?</button>
+  <button class="suggestion-btn" onclick="ask('O que é Hugging Face?')">🤗 O que é Hugging Face?</button>
+</div>
+
+<div class="stack-info">
+  <div class="tag"><strong>Framework:</strong> LangChain</div>
+  <div class="tag"><strong>Modelo:</strong> TinyLlama-1.1B</div>
+  <div class="tag"><strong>Origem:</strong> Hugging Face</div>
+  <div class="tag"><strong>Execução:</strong> Local 💻</div>
+  <div class="tag"><strong>Linguagem:</strong> Python 3</div>
+</div>
+
+<script>
+const RESPONSES = {
+  "inteligência artificial": "Inteligência Artificial é a capacidade de sistemas computacionais realizarem tarefas que normalmente exigiriam inteligência humana, como raciocínio, aprendizado e tomada de decisões. 🧠",
+  "langchain": "LangChain é um framework open-source em Python que facilita a criação de aplicações com LLMs. Ele conecta prompts, modelos, memória e ferramentas em pipelines chamados chains. 🔗",
+  "llm": "LLM significa Large Language Model — um modelo de linguagem treinado em grandes volumes de texto, capaz de gerar e responder textos de forma coerente. Exemplos: GPT-4, Claude, TinyLlama. 🤖",
+  "hugging face": "Hugging Face é uma plataforma que disponibiliza milhares de modelos de IA gratuitamente. Usamos o TinyLlama neste projeto, que roda 100% localmente! 🤗",
+  "quem te criou": "Fui criada por um trio incrível de estudantes como projeto acadêmico, usando LangChain e o TinyLlama do Hugging Face. 💅✨",
+  "como você funciona": "Meu funcionamento: você digita → PromptTemplate formata → TinyLlama processa localmente → StrOutputParser retorna a resposta. Tudo na sua máquina! ⚙️",
+  "default": "Ótima pergunta! 🌸 Com base no meu processamento via LangChain e o TinyLlama rodando localmente, posso dizer que essa resposta é gerada 100% na sua máquina, sem APIs pagas."
+};
+function getResponse(input) {
+  const lower = input.toLowerCase();
+  for (const [key, val] of Object.entries(RESPONSES)) {
+    if (key !== "default" && lower.includes(key)) return val;
+  }
+  return RESPONSES["default"];
+}
+function now() { return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
+function appendMessage(text, role) {
+  const messages = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = `msg ${role}`;
+  const avatar = role === "user" ? "🧑" : "🤖";
+  div.innerHTML = `<div class="avatar">${avatar}</div><div><div class="bubble">${text}</div><div class="timestamp" style="${role==='user'?'text-align:right':''}">${now()}</div></div>`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+function sendMessage() {
+  const input = document.getElementById("input");
+  const sendBtn = document.getElementById("sendBtn");
+  const typing = document.getElementById("typing");
+  const text = input.value.trim();
+  if (!text) return;
+  appendMessage(text, "user");
+  input.value = ""; input.style.height = "auto";
+  sendBtn.disabled = true; typing.classList.add("visible");
+  document.getElementById("messages").scrollTop = 9999;
+  setTimeout(() => {
+    typing.classList.remove("visible");
+    appendMessage(getResponse(text), "bot");
+    sendBtn.disabled = false;
+  }, 1200 + Math.random() * 900);
+}
+function ask(text) { document.getElementById("input").value = text; sendMessage(); }
+const ta = document.getElementById("input");
+ta.addEventListener("keydown", e => { if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage();} });
+ta.addEventListener("input", () => { ta.style.height="auto"; ta.style.height=Math.min(ta.scrollHeight,120)+"px"; });
+</script>
+</body>
+</html>
